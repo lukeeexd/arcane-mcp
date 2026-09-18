@@ -30,6 +30,9 @@ def route(method: str, path: str, tags: list[str] | None, operation_id: str = "x
     ("get-image-by-id", "get_image_by_id"),
     ("already_snake", "already_snake"),
     ("Mixed-Case", "mixed_case"),
+    ("listEnvironments", "list_environments"),
+    ("getVersion", "get_version"),
+    ("getImageByID", "get_image_by_id"),
 ])
 def test_tool_name(op, expected):
     assert tool_name(op) == expected

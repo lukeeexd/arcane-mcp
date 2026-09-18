@@ -72,7 +72,9 @@ def normalise_spec(spec: dict[str, Any], base_url: str) -> dict[str, Any]:
 
 
 def tool_name(operation_id: str) -> str:
-    return re.sub(r"[^a-z0-9_]", "_", operation_id.lower())
+    """Convert kebab-case or camelCase operationIds to snake_case (list-containers, listEnvironments -> list_...)."""
+    with_breaks = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", operation_id)
+    return re.sub(r"_+", "_", re.sub(r"[^a-z0-9_]", "_", with_breaks.lower())).strip("_")
 
 
 def build_route_map_fn(settings: Settings) -> Callable[[HTTPRoute, MCPType], MCPType]:

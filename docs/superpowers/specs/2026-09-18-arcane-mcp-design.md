@@ -66,7 +66,7 @@ arcane-mcp/
   Image Updates, Vulnerabilities, Health, Version
   ```
 
-  This yields on the order of 110 tools. Admin/identity tags (Users, Roles, API Keys, Auth, OIDC, Passkeys, MFA, Settings, System Backups, S3 Destinations, Federated Credentials) and large optional areas (Swarm, GitOps Syncs, Templates, Volume Backup, Volume Workspace, Builds, Container Registries, Notifications, Webhooks, Customize, Mobile Push, Application Images, Uploads, Variables, Diagnostics, JobSchedules, Jobs, Stream) are excluded unless added to the allowlist.
+  This yields 137 tools against Arcane 2.12.0. Admin/identity tags (Users, Roles, API Keys, Auth, OIDC, Passkeys, MFA, Settings, System Backups, S3 Destinations, Federated Credentials) and large optional areas (Swarm, GitOps Syncs, Templates, Volume Backup, Volume Workspace, Builds, Container Registries, Notifications, Webhooks, Customize, Mobile Push, Application Images, Uploads, Variables, Diagnostics, JobSchedules, Jobs, Stream) are excluded unless added to the allowlist.
 - All GET operations become TOOLs, not resources; MCP clients handle tools far more uniformly.
 
 ## 3. Safety gate

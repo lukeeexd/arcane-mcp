@@ -1,0 +1,17 @@
+services:
+  arcane-mcp:
+    build: .
+    image: arcane-mcp:local
+    container_name: arcane-mcp
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8000:8000"
+    # To reach Arcane over an internal Docker network instead of a public URL,
+    # join Arcane's network and set ARCANE_BASE_URL=http://arcane:3552 in .env:
+    # networks:
+    #   - arcane_default
+
+# networks:
+#   arcane_default:
+#     external: true

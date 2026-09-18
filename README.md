@@ -7,11 +7,30 @@ Streamable HTTP. Because tools are generated from the live spec, they track your
 
 ## Quick start
 
+Prebuilt multi-arch images (amd64, arm64) are published to GitHub Container Registry on every push to `main`
+and every `v*` tag: `ghcr.io/lukeeexd/arcane-mcp`. No clone or local build is needed.
+
 ```bash
-cp .env.example .env          # set ARCANE_BASE_URL, ARCANE_API_KEY, MCP_AUTH_TOKEN
-docker compose up -d --build
+mkdir arcane-mcp && cd arcane-mcp
+curl -fsSLO https://raw.githubusercontent.com/lukeeexd/arcane-mcp/main/compose.yaml
+curl -fsSL  https://raw.githubusercontent.com/lukeeexd/arcane-mcp/main/.env.example -o .env
+# edit .env: set ARCANE_BASE_URL, ARCANE_API_KEY, MCP_AUTH_TOKEN
+docker compose up -d
 curl http://localhost:8000/health
 ```
+
+Or without compose:
+
+```bash
+docker run -d --name arcane-mcp --restart unless-stopped -p 8000:8000 \
+  -e ARCANE_BASE_URL=https://arcane.example.com \
+  -e ARCANE_API_KEY=arc_xxx \
+  -e MCP_AUTH_TOKEN=change-me \
+  ghcr.io/lukeeexd/arcane-mcp:latest
+```
+
+Tags: `latest` tracks `main`; releases are tagged `1.2.3` and `1.2`; every build also gets `sha-<short>`.
+To build locally instead, run `docker build -t arcane-mcp:local .` and point `image:` in `compose.yaml` at it.
 
 Create the Arcane API key in Arcane under your profile, or via `POST /api/auth/me/api-keys`.
 Generate `MCP_AUTH_TOKEN` with `openssl rand -hex 32`.

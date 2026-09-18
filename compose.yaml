@@ -1,7 +1,6 @@
 services:
   arcane-mcp:
-    build: .
-    image: arcane-mcp:local
+    image: ghcr.io/lukeeexd/arcane-mcp:latest
     container_name: arcane-mcp
     restart: unless-stopped
     env_file: .env

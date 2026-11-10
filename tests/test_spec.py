@@ -153,3 +153,24 @@ async def test_fetch_spec_requests_openapi_path(make_arcane_client):
 
     await fetch_spec(make_arcane_client(handler), timeout=5)
     assert seen == ["http://arcane.test/api/openapi.json"]
+
+
+def test_normalise_strips_schema_link_property():
+    spec = {
+        "paths": {"/x": {"post": {"tags": ["T"], "requestBody": {"content": {"application/json": {"schema": {
+            "type": "object", "required": ["$schema", "name"],
+            "properties": {"$schema": {"type": "string", "format": "uri"}, "name": {"type": "string"}},
+        }}}}}}},
+        "components": {"schemas": {"Body": {"type": "object", "properties": {
+            "$schema": {"type": "string", "format": "uri"},
+            "nested": {"type": "object", "properties": {"$schema": {"type": "string"}, "a": {"type": "integer"}}},
+        }}}},
+    }
+    out = normalise_spec(spec, "http://arcane.test")
+    inline = out["paths"]["/x"]["post"]["requestBody"]["content"]["application/json"]["schema"]
+    assert inline["properties"] == {"name": {"type": "string"}}
+    assert inline["required"] == ["name"]
+    body = out["components"]["schemas"]["Body"]
+    assert "$schema" not in body["properties"]
+    assert "$schema" not in body["properties"]["nested"]["properties"]
+    assert "$schema" in spec["components"]["schemas"]["Body"]["properties"]  # original untouched

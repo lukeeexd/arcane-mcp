@@ -60,10 +60,34 @@ async def fetch_spec(
             delay = min(delay * 2, _MAX_BACKOFF)
 
 
+def strip_schema_link_properties(node: Any) -> None:
+    """Remove Huma's optional ``$schema`` link property from every object schema, in place.
+
+    Huma adds a ``$schema`` (format: uri) property to request/response bodies. That property
+    name is not a valid tool-parameter name for some MCP clients (e.g. the Anthropic API requires
+    ``^[a-zA-Z0-9_.-]{1,64}$``), so any tool whose body includes it is rejected outright.
+    The field is optional metadata and is never required by Arcane.
+    """
+    if isinstance(node, dict):
+        props = node.get("properties")
+        if isinstance(props, dict) and "$schema" in props:
+            del props["$schema"]
+            required = node.get("required")
+            if isinstance(required, list) and "$schema" in required:
+                node["required"] = [r for r in required if r != "$schema"]
+        for value in node.values():
+            strip_schema_link_properties(value)
+    elif isinstance(node, list):
+        for value in node:
+            strip_schema_link_properties(value)
+
+
 def normalise_spec(spec: dict[str, Any], base_url: str) -> dict[str, Any]:
-    """Return a copy with servers pointed at base_url/api and untagged operations tagged."""
+    """Return a copy with servers pointed at base_url/api, untagged operations tagged,
+    and ``$schema`` link properties removed."""
     out = copy.deepcopy(spec)
     out["servers"] = [{"url": f"{base_url}/api"}]
+    strip_schema_link_properties(out)
     for path_item in out.get("paths", {}).values():
         for method, operation in path_item.items():
             if method.lower() in _HTTP_METHODS and isinstance(operation, dict) and not operation.get("tags"):

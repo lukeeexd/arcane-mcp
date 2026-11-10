@@ -83,10 +83,13 @@ def build_server(settings: Settings, spec: dict[str, Any], client: httpx2.AsyncC
 
 
 async def build_server_from_live_spec(settings: Settings) -> FastMCP:
-    client = make_arcane_client(settings)
-    spec = await fetch_spec(client, timeout=settings.spec_timeout)
+    # The spec is fetched inside a short-lived asyncio.run() loop, but tools run later in the server's
+    # own loop. Reusing the same client would hand the first tool call a pooled keep-alive connection
+    # bound to the closed startup loop ("Event loop is closed"). Use a throwaway client for the fetch.
+    async with make_arcane_client(settings) as spec_client:
+        spec = await fetch_spec(spec_client, timeout=settings.spec_timeout)
     logger.info("Arcane %s at %s", spec.get("info", {}).get("version", "?"), settings.arcane_base_url)
-    return build_server(settings, spec, client)
+    return build_server(settings, spec, make_arcane_client(settings))
 
 
 def main() -> None:
